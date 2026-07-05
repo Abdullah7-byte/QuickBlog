@@ -21,8 +21,6 @@ const Dashboard = () => {
     try {
       const response = await api.get("/admin/dashboard");
 
-      console.log(response.data);
-
       if (response.data.success) {
         setDashboardData(response.data.dashboardData);
       }
