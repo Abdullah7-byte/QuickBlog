@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import api from "../api/axios";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,14 +12,10 @@ const Login = () => {
   const onSubmitHandler = async (e) => {
     if (e) e.preventDefault();
     try {
-      const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      const response = await axios.post(
-        `${apiBase}/api/admin/login`,
-        {
-          email,
-          password,
-        }
-      );
+      const response = await api.post("/admin/login", {
+        email,
+        password,
+      });
 
       if (response.data.success) {
         localStorage.setItem("token", response.data.token);
