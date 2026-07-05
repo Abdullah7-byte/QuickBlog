@@ -2,11 +2,11 @@ import Comment from "../models/Comment.js";
 
 export const addComment = async (req, res) => {
   try {
-    const { blog, name, content } = req.body;
+    const { blog, content } = req.body;
 
     const comment = await Comment.create({
       blog,
-      name,
+      user: req.userId,
       content,
     });
 
@@ -16,7 +16,7 @@ export const addComment = async (req, res) => {
       comment,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
       success: false,
@@ -32,14 +32,16 @@ export const getComments = async (req, res) => {
     const comments = await Comment.find({
       blog: blogId,
       isApproved: true,
-    }).sort({ createdAt: -1 });
+    })
+      .populate("user", "name")
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,
       comments,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
       success: false,
@@ -52,6 +54,7 @@ export const getAllComments = async (req, res) => {
   try {
     const comments = await Comment.find()
       .populate("blog", "title")
+      .populate("user", "name email")
       .sort({ createdAt: -1 });
 
     res.json({
@@ -59,7 +62,7 @@ export const getAllComments = async (req, res) => {
       comments,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
       success: false,
@@ -81,7 +84,7 @@ export const approveComment = async (req, res) => {
       message: "Comment Approved",
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
       success: false,
@@ -101,7 +104,7 @@ export const deleteComment = async (req, res) => {
       message: "Comment Deleted",
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
       success: false,

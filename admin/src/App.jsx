@@ -34,6 +34,15 @@ const App = () => {
         />
 
         <Route
+          path="/admin/add-blog/:id"
+          element={
+            <ProtectedRoute>
+              <AddBlog />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/admin/blog-list"
           element={
             <ProtectedRoute>

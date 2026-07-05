@@ -35,7 +35,7 @@ export const addBlog = async (req, res) => {
       blog,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
       success: false,
@@ -62,7 +62,7 @@ export const getBlogById = async (req, res) => {
       blog,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
       success: false,
@@ -81,7 +81,7 @@ export const getAllBlogs = async (req, res) => {
       blogs,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
       success: false,
@@ -101,7 +101,7 @@ export const deleteBlog = async (req, res) => {
       message: "Blog deleted successfully",
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
       success: false,
@@ -113,26 +113,49 @@ export const updateBlog = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const updatedBlog = await Blog.findByIdAndUpdate(
-      id,
-      req.body,
-      { new: true }
-    );
+    const existingBlog = await Blog.findById(id);
 
-    if (!updatedBlog) {
+    if (!existingBlog) {
       return res.status(404).json({
         success: false,
         message: "Blog not found",
       });
     }
 
+    const { title, subTitle, description, category, isPublished } = req.body;
+
+    let imageUrl = existingBlog.image;
+
+    if (req.file) {
+      const uploadedImage = await imagekit.upload({
+        file: req.file.buffer,
+        fileName: req.file.originalname,
+        folder: "/quickblog",
+        useUniqueFileName: true,
+      });
+
+      imageUrl = uploadedImage.url;
+    }
+
+    existingBlog.title = title ?? existingBlog.title;
+    existingBlog.subTitle = subTitle ?? existingBlog.subTitle;
+    existingBlog.description = description ?? existingBlog.description;
+    existingBlog.category = category ?? existingBlog.category;
+    existingBlog.isPublished =
+      isPublished !== undefined
+        ? isPublished === "true" || isPublished === true
+        : existingBlog.isPublished;
+    existingBlog.image = imageUrl;
+
+    await existingBlog.save();
+
     res.json({
       success: true,
       message: "Blog updated successfully",
-      blog: updatedBlog,
+      blog: existingBlog,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
       success: false,
@@ -187,7 +210,7 @@ Requirements:
       content,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
       success: false,

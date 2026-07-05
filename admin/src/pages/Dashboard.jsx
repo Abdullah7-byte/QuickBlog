@@ -29,7 +29,7 @@ const Dashboard = () => {
         setDashboardData(response.data.dashboardData);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -47,7 +47,7 @@ const Dashboard = () => {
         fetchDashboardData();
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Failed to update blog status");
     }
   };

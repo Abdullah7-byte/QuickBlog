@@ -1,28 +1,27 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import toast from "react-hot-toast";
+import useAuth from "../context/useAuth";
+import api from "../api/axios";
 
 const Blog = () => {
   const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [blog, setBlog] = useState(null);
-  const [name, setName] = useState("");
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
   // Fetch Blog
   const fetchBlog = async () => {
     try {
-      const response = await axios.get(
-        `${apiBase}/api/blog/${id}`
-      );
+      const response = await api.get(`/blog/${id}`);
 
       if (response.data.success) {
         setBlog(response.data.blog);
@@ -30,7 +29,7 @@ const Blog = () => {
         setError(true);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setError(true);
     } finally {
       setLoading(false);
@@ -40,47 +39,46 @@ const Blog = () => {
   // Fetch Approved Comments
   const fetchComments = async () => {
     try {
-      const response = await axios.get(
-        `${apiBase}/api/comment/${id}`
-      );
+      const response = await api.get(`/comment/${id}`);
 
       if (response.data.success) {
         setComments(response.data.comments);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
   useEffect(() => {
     fetchBlog();
     fetchComments();
-  }, []);
+  }, [id]);
 
   // Submit Comment
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name.trim() || !comment.trim()) return;
+    if (!user) {
+      localStorage.setItem("redirectAfterLogin", location.pathname);
+      toast.error("Please login to comment.");
+      return navigate("/login");
+    }
+
+    if (!comment.trim()) return;
 
     try {
-      const response = await axios.post(
-        `${apiBase}/api/comment/add`,
-        {
-          blog: id,
-          name,
-          content: comment,
-        }
-      );
+      const response = await api.post("/comment/add", {
+        blog: id,
+        content: comment,
+      });
 
       if (response.data.success) {
         toast.success("Comment submitted for approval.");
 
-        setName("");
         setComment("");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Failed to submit comment.");
     }
   };
@@ -164,30 +162,46 @@ const Blog = () => {
             Leave a Comment
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              placeholder="Your Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded-xl p-4"
-            />
+          {user ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Commenting as{" "}
+                <span className="font-semibold">{user.name}</span>
+              </p>
 
-            <textarea
-              rows="4"
-              placeholder="Write your comment..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="w-full border border-gray-300 rounded-xl p-4"
-            />
+              <textarea
+                rows="4"
+                placeholder="Write your comment..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="w-full border border-gray-300 rounded-xl p-4"
+              />
 
-            <button
-              type="submit"
-              className="bg-primary text-white px-6 py-3 rounded-xl hover:opacity-90 transition cursor-pointer"
-            >
-              Submit Comment
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="bg-primary text-white px-6 py-3 rounded-xl hover:opacity-90 transition cursor-pointer"
+              >
+                Submit Comment
+              </button>
+            </form>
+          ) : (
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-6">
+              <p className="text-sm text-gray-600">
+                Login to post a comment.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.setItem("redirectAfterLogin", location.pathname);
+                  navigate("/login");
+                }}
+                className="mt-4 inline-flex items-center rounded-full bg-primary px-6 py-3 text-white font-medium hover:opacity-90 transition cursor-pointer"
+              >
+                Login to Comment
+              </button>
+            </div>
+          )}
         </section>
 
         {/* Comments */}
@@ -215,7 +229,7 @@ const Blog = () => {
                   className="border border-gray-200 rounded-xl p-5 bg-white"
                 >
                   <h3 className="font-semibold text-gray-900">
-                    {item.name}
+                    {item.user?.name}
                   </h3>
 
                   <p className="mt-2 text-gray-600">

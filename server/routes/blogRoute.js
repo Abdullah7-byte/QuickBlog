@@ -18,7 +18,7 @@ blogRouter.post("/generate", generateContent);
 blogRouter.post("/add", upload.single("image"), addBlog);
 blogRouter.get("/all", getAllBlogs);
 blogRouter.get("/:id", getBlogById);
-blogRouter.put("/:id", updateBlog);
+blogRouter.put("/:id", upload.single("image"), updateBlog);
 blogRouter.delete("/:id", deleteBlog);
 
 export default blogRouter;

@@ -1,12 +1,17 @@
-import { useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { Loader2, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
+import api from "../api/axios";
 
 const AddBlog = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEditing = !!id;
+
   const [title, setTitle] = useState("");
   const [subTitle, setSubTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -16,7 +21,31 @@ const AddBlog = () => {
   const [generating, setGenerating] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const fetchBlog = async () => {
+    try {
+      const response = await api.get(`/blog/${id}?admin=true`);
+
+      if (response.data.success) {
+        const blog = response.data.blog;
+
+        setTitle(blog.title || "");
+        setSubTitle(blog.subTitle || "");
+        setDescription(blog.description || "");
+        setCategory(blog.category || "Startup");
+        setPublish(blog.isPublished || false);
+        setImage(blog.image);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load blog details.");
+    }
+  };
+
+  useEffect(() => {
+    if (isEditing) {
+      fetchBlog();
+    }
+  }, [id]);
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -31,7 +60,7 @@ const AddBlog = () => {
       return toast.error("Please generate or write blog content.");
     }
 
-    if (!image) {
+    if (!image && !isEditing) {
       return toast.error("Please upload a thumbnail.");
     }
 
@@ -45,15 +74,26 @@ const AddBlog = () => {
       formData.append("description", description);
       formData.append("category", category);
       formData.append("isPublished", publish);
-      formData.append("image", image);
 
-      const response = await axios.post(
-        `${apiBase}/api/blog/add`,
-        formData
-      );
+      if (image instanceof File) {
+        formData.append("image", image);
+      }
+
+      const response = isEditing
+        ? await api.put(`/blog/${id}`, formData)
+        : await api.post(`/blog/add`, formData);
 
       if (response.data.success) {
-        toast.success("🎉 Blog Added Successfully");
+        toast.success(
+          isEditing
+            ? "🎉 Blog Updated Successfully"
+            : "🎉 Blog Added Successfully"
+        );
+
+        if (isEditing) {
+          navigate("/admin/blog-list");
+          return;
+        }
 
         setTitle("");
         setSubTitle("");
@@ -63,7 +103,7 @@ const AddBlog = () => {
         setImage(null);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Something went wrong.");
     } finally {
       setUploading(false);
@@ -79,19 +119,16 @@ const AddBlog = () => {
     setGenerating(true);
 
     try {
-      const response = await axios.post(
-        `${apiBase}/api/blog/generate`,
-        {
-          title,
-          subTitle,
-        }
-      );
+      const response = await api.post("/blog/generate", {
+        title,
+        subTitle,
+      });
 
       if (response.data.success) {
         setDescription(response.data.content);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Failed to generate content.");
     } finally {
       setGenerating(false);
@@ -130,7 +167,7 @@ const AddBlog = () => {
   >
     {image ? (
       <img
-        src={URL.createObjectURL(image)}
+        src={image instanceof File ? URL.createObjectURL(image) : image}
         alt="Thumbnail Preview"
         className="w-full h-full object-cover"
       />
@@ -151,7 +188,7 @@ const AddBlog = () => {
 
   {image && (
     <p className="mt-2 w-32 truncate text-xs text-gray-500">
-      {image.name}
+      {image instanceof File ? image.name : "Current Thumbnail"}
     </p>
   )}
 </div>
@@ -317,11 +354,11 @@ const AddBlog = () => {
           {uploading ? (
   <>
     <Loader2 className="w-5 h-5 animate-spin" />
-    Publishing...
+    {isEditing ? "Updating..." : "Publishing..."}
   </>
 ) : (
   <>
-    Publish Blog
+    {isEditing ? "Update Blog" : "Publish Blog"}
   </>
 )}
 </button>

@@ -7,6 +7,7 @@ import connectDB from "./config/db.js";
 import adminRouter from "./routes/adminRoute.js";
 import blogRouter from "./routes/blogRoute.js";
 import commentRouter from "./routes/commentRoute.js";
+import userRouter from "./routes/userRoute.js";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/api/user", userRouter);
 
 // Database Connection
 connectDB();
@@ -33,5 +35,4 @@ app.use("/api/comment", commentRouter);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
 });

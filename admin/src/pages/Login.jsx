@@ -26,7 +26,7 @@ const Login = () => {
         navigate("/admin/dashboard");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Invalid Credentials");
     }
   };

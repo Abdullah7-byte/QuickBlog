@@ -1,47 +1,43 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import toast from "react-hot-toast";
+import api from "../api/axios";
 
 const ListBlog = () => {
   const [blogs, setBlogs] = useState([]);
-
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const navigate = useNavigate();
 
   const fetchBlogs = async () => {
     try {
-      const response = await axios.get(
-        `${apiBase}/api/blog/all?admin=true`
-      );
+      const response = await api.get("/blog/all?admin=true");
 
       if (response.data.success) {
         setBlogs(response.data.blogs);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
   const deleteBlog = async (id) => {
     try {
-      const response = await axios.delete(
-        `${apiBase}/api/blog/${id}`
-      );
+      const response = await api.delete(`/blog/${id}`);
 
       if (response.data.success) {
         toast.success("Blog deleted successfully");
         fetchBlogs();
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Failed to delete blog");
     }
   };
 
   const togglePublish = async (blog) => {
     try {
-      const response = await axios.put(
-        `${apiBase}/api/blog/${blog._id}`,
+      const response = await api.put(
+        `/blog/${blog._id}`,
         {
           isPublished: !blog.isPublished,
         }
@@ -52,7 +48,7 @@ const ListBlog = () => {
         fetchBlogs();
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Failed to update blog");
     }
   };
@@ -129,6 +125,23 @@ const ListBlog = () => {
 
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => navigate(`/admin/add-blog/${blog._id}`)}
+                          className="
+                            border
+                            border-blue-300
+                            px-3
+                            py-1
+                            rounded
+                            text-xs
+                            text-blue-600
+                            hover:bg-blue-50
+                            cursor-pointer
+                          "
+                        >
+                          Edit
+                        </button>
+
                         <button
                           onClick={() => togglePublish(blog)}
                           className="

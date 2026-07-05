@@ -17,7 +17,7 @@ const Comments = () => {
         setComments(response.data.comments);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -31,7 +31,7 @@ const Comments = () => {
         fetchComments();
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -45,7 +45,7 @@ const Comments = () => {
         fetchComments();
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -110,7 +110,7 @@ const Comments = () => {
                         </p>
 
                         <p className="text-gray-600">
-                          {item.name}
+                          {item.user?.name || "Unknown User"}
                         </p>
                       </div>
 

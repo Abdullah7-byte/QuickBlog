@@ -1,4 +1,5 @@
 import express from "express";
+import auth from "../middleware/auth.js";
 import {
   addComment,
   getComments,
@@ -15,7 +16,7 @@ commentRouter.put("/approve/:id", approveComment);
 commentRouter.delete("/:id", deleteComment);
 
 // Client Routes
-commentRouter.post("/add", addComment);
+commentRouter.post("/add", auth, addComment);
 commentRouter.get("/:blogId", getComments);
 
 export default commentRouter;
