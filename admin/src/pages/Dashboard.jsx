@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Layout from "../components/Layout";
 import StatCard from "../components/StatCard";
 import {
@@ -8,6 +7,7 @@ import {
   FileText,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import api from "../api/axios";
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -17,13 +17,11 @@ const Dashboard = () => {
     latestBlogs: [],
   });
 
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
   const fetchDashboardData = async () => {
     try {
-      const response = await axios.get(
-        `${apiBase}/api/admin/dashboard`
-      );
+      const response = await api.get("/admin/dashboard");
+
+      console.log(response.data);
 
       if (response.data.success) {
         setDashboardData(response.data.dashboardData);
@@ -35,12 +33,9 @@ const Dashboard = () => {
 
   const togglePublish = async (blog) => {
     try {
-      const response = await axios.put(
-        `${apiBase}/api/blog/${blog._id}`,
-        {
-          isPublished: !blog.isPublished,
-        }
-      );
+      const response = await api.put(`/blog/${blog._id}`, {
+        isPublished: !blog.isPublished,
+      });
 
       if (response.data.success) {
         toast.success(`Blog ${!blog.isPublished ? "Published" : "Unpublished"} Successfully`);

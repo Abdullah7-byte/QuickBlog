@@ -1,17 +1,13 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Layout from "../components/Layout";
+import api from "../api/axios";
 
 const Comments = () => {
   const [comments, setComments] = useState([]);
 
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
   const fetchComments = async () => {
     try {
-      const response = await axios.get(
-        `${apiBase}/api/comment/all`
-      );
+      const response = await api.get("/comment/all");
 
       if (response.data.success) {
         setComments(response.data.comments);
@@ -23,9 +19,7 @@ const Comments = () => {
 
   const approveComment = async (id) => {
     try {
-      const response = await axios.put(
-        `${apiBase}/api/comment/approve/${id}`
-      );
+      const response = await api.put(`/comment/approve/${id}`);
 
       if (response.data.success) {
         fetchComments();
@@ -37,9 +31,7 @@ const Comments = () => {
 
   const deleteComment = async (id) => {
     try {
-      const response = await axios.delete(
-        `${apiBase}/api/comment/${id}`
-      );
+      const response = await api.delete(`/comment/${id}`);
 
       if (response.data.success) {
         fetchComments();
