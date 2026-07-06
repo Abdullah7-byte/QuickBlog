@@ -42,19 +42,24 @@ export const registerUser = async (req, res) => {
       verifyOtpExpireAt: Date.now() + 15 * 60 * 1000, // 15 minutes
     });
 
-    // Send Verification Email
-    await transporter.sendMail({
-      from: process.env.SENDER_EMAIL,
-      to: email,
-      subject: "QuickBlog Email Verification",
-      text: `Welcome to QuickBlog!
+    try {
+      // Send Verification Email
+      await transporter.sendMail({
+        from: process.env.SENDER_EMAIL || process.env.SMTP_USER,
+        to: email,
+        subject: "QuickBlog Email Verification",
+        text: `Welcome to QuickBlog!
 
 Your OTP for email verification is: ${otp}
 
 This OTP is valid for 15 minutes.
 
 If you didn't create this account, please ignore this email.`,
-    });
+      });
+    } catch (mailError) {
+      await User.findByIdAndDelete(user._id);
+      throw mailError;
+    }
 
     return res.status(201).json({
       success: true,
@@ -62,11 +67,16 @@ If you didn't create this account, please ignore this email.`,
       userId: user._id,
     });
   } catch (error) {
+    console.error("FULL ERROR:");
     console.error(error);
+
+    if (error.response) {
+      console.error(error.response);
+    }
 
     return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
@@ -116,11 +126,16 @@ export const verifyEmail = async (req, res) => {
       message: "Email verified successfully",
     });
   } catch (error) {
+    console.error("FULL ERROR:");
     console.error(error);
+
+    if (error.response) {
+      console.error(error.response);
+    }
 
     return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
@@ -180,11 +195,16 @@ export const loginUser = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("FULL ERROR:");
     console.error(error);
+
+    if (error.response) {
+      console.error(error.response);
+    }
 
     return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
@@ -217,7 +237,7 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     await transporter.sendMail({
-      from: process.env.SENDER_EMAIL,
+      from: process.env.SENDER_EMAIL || process.env.SMTP_USER,
       to: email,
       subject: "QuickBlog Password Reset",
       text: `Your password reset OTP is: ${otp}
@@ -230,11 +250,16 @@ This OTP is valid for 15 minutes.`,
       message: "Password reset OTP sent successfully.",
     });
   } catch (error) {
+    console.error("FULL ERROR:");
     console.error(error);
+
+    if (error.response) {
+      console.error(error.response);
+    }
 
     return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
@@ -284,11 +309,16 @@ export const resetPassword = async (req, res) => {
       message: "Password reset successful",
     });
   } catch (error) {
+    console.error("FULL ERROR:");
     console.error(error);
+
+    if (error.response) {
+      console.error(error.response);
+    }
 
     return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
@@ -310,11 +340,16 @@ export const getUserProfile = async (req, res) => {
       user,
     });
   } catch (error) {
+    console.error("FULL ERROR:");
     console.error(error);
+
+    if (error.response) {
+      console.error(error.response);
+    }
 
     return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
