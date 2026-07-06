@@ -24,18 +24,28 @@ Create, publish, manage, and explore blogs with AI-assisted content generation, 
 🔗 https://quick-blog-jvws.vercel.app
 
 **Demo Credentials (Admin Dashboard)**
+
 ```text
 Email: admin@gmail.com
 Password: 123456
 ```
 
-**Demo Credentials (Client Reader Login - for Commenting)**
-```text
-Email: guest@quickblog.com
-Password: guest123
-```
+## 👤 Reader Demo Credentials
 
-> **Note:** These are public demo accounts intended for recruiters and reviewers. Feel free to explore the dashboard, create blogs, write comments, and test the application's features.
+To quickly explore the client-side features without creating a new account:
+
+**Email:** `demo.reader@quickblog.local`
+
+**Password:** `ReaderPassword123`
+
+You can use this account to:
+
+- Read blogs
+- Search and filter blogs
+- Post comments
+- Explore authenticated user features
+
+> **Note:** This project currently uses Resend's sandbox environment for email verification on the live demo. If you don't receive an OTP while registering or resetting a password, please use the demo credentials above to evaluate the application.
 
 ### ⚙️ Backend API
 🔗 https://quickblog-glbs.onrender.com

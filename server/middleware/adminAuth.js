@@ -11,11 +11,18 @@ const adminAuth = async (req, res, next) => {
       });
     }
 
-    const [, token] = authHeader.split(" ");
+    const token = authHeader.split(" ")[1];
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({
+        success: false,
+        message: "JWT secret is not configured on the server.",
+      });
+    }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (decoded.role !== "admin" || decoded.email !== process.env.ADMIN_EMAIL) {
+    if (decoded.email !== process.env.ADMIN_EMAIL) {
       return res.status(403).json({
         success: false,
         message: "Access denied. Admin privileges required.",
