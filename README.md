@@ -88,12 +88,15 @@ QuickBlog is a production-ready, full-stack blogging application built using the
 ## 🛠 Admin Features
 
 *   **Secure Admin Login:** Separate, restricted authentication workflow for admins.
+*   **Role-Based Admin Authorization:** Custom token claims (`role: "admin"`) and middleware validations securing all administration API endpoints.
 *   **Analytical Dashboard:** Monitor core stats (total blogs, drafts, comments count) from a centralized grid.
 *   **Content Manager:** Full CRUD interface for creating, viewing, updating, and deleting blog posts.
 *   **Draft & Publish Workflows:** Toggle visibility instantly between unpublished drafts and live public articles.
-*   **AI Assistant:** Integrated generation of article outlines and content structures directly in the editor.
+*   **AI Assistant:** Integrated generation of article outlines and content structures directly in the editor using the Google Gemini API.
 *   **Cloud Storage & CDN:** Serverless image uploading using ImageKit APIs.
 *   **Comment Moderation Panel:** Review global discussion boards and purge spam/toxic commentary.
+*   **Environment & Configuration Guards:** Startup validations (`validateEnv`) that warn about ImageKit options and abort execution for missing database or JWT configuration to prevent runtime crashes.
+*   **Axios Request Interceptors:** Automated bearer token injection in admin client requests for stateless authorization.
 
 ---
 
@@ -319,8 +322,9 @@ IMAGEKIT_PUBLIC_KEY=your_imagekit_public_key
 IMAGEKIT_PRIVATE_KEY=your_imagekit_private_key
 IMAGEKIT_URL_ENDPOINT=your_imagekit_url_endpoint
 
-# Google Gemini API Key
+# Google Gemini API Key and Model Override (optional, defaults to gemini-1.5-flash)
 GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-2.5-flash
 
 # Resend Mail Service
 RESEND_API_KEY=your_resend_api_key
