@@ -286,30 +286,3 @@ Requirements:
     });
   }
 };
-
-export const listModels = async (req, res) => {
-  try {
-    if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({
-        success: false,
-        message: "Gemini API key is not configured on the server.",
-      });
-    }
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`
-    );
-    const data = await response.json();
-
-    res.json({
-      success: true,
-      models: data.models || data,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};

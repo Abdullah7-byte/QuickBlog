@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import toast from "react-hot-toast";
 import api from "../api/axios";
 
 const Comments = () => {
@@ -22,10 +23,15 @@ const Comments = () => {
       const response = await api.put(`/comment/approve/${id}`);
 
       if (response.data.success) {
+        toast.success("Comment approved successfully");
         fetchComments();
+      } else {
+        toast.error(response.data.message || "Failed to approve comment");
       }
     } catch (error) {
       console.error(error);
+      const errorMsg = error.response?.data?.message || "Failed to approve comment";
+      toast.error(errorMsg);
     }
   };
 
@@ -34,10 +40,15 @@ const Comments = () => {
       const response = await api.delete(`/comment/${id}`);
 
       if (response.data.success) {
+        toast.success("Comment deleted successfully");
         fetchComments();
+      } else {
+        toast.error(response.data.message || "Failed to delete comment");
       }
     } catch (error) {
       console.error(error);
+      const errorMsg = error.response?.data?.message || "Failed to delete comment";
+      toast.error(errorMsg);
     }
   };
 

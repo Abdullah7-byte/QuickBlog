@@ -75,9 +75,16 @@ export const approveComment = async (req, res) => {
   try {
     const { id } = req.params;
 
-    await Comment.findByIdAndUpdate(id, {
+    const comment = await Comment.findByIdAndUpdate(id, {
       isApproved: true,
     });
+
+    if (!comment) {
+      return res.status(404).json({
+        success: false,
+        message: "Comment not found",
+      });
+    }
 
     res.json({
       success: true,
@@ -97,7 +104,14 @@ export const deleteComment = async (req, res) => {
   try {
     const { id } = req.params;
 
-    await Comment.findByIdAndDelete(id);
+    const comment = await Comment.findByIdAndDelete(id);
+
+    if (!comment) {
+      return res.status(404).json({
+        success: false,
+        message: "Comment not found",
+      });
+    }
 
     res.json({
       success: true,

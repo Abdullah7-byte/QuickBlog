@@ -8,14 +8,12 @@ import {
   deleteBlog,
   updateBlog,
   generateContent,
-  listModels,
 } from "../controllers/blogController.js";
 
 const blogRouter = express.Router();
 
 // AI Route
 blogRouter.post("/generate", adminAuth, generateContent);
-blogRouter.get("/list-models", listModels);
 
 // Blog CRUD Routes
 blogRouter.post("/add", adminAuth, upload.single("image"), addBlog);

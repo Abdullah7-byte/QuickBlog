@@ -74,12 +74,14 @@ const Blog = () => {
 
       if (response.data.success) {
         toast.success("Comment submitted for approval.");
-
         setComment("");
+      } else {
+        toast.error(response.data.message || "Failed to submit comment.");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to submit comment.");
+      const errorMsg = error.response?.data?.message || "Failed to submit comment.";
+      toast.error(errorMsg);
     }
   };
 
