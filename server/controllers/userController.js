@@ -44,7 +44,7 @@ export const registerUser = async (req, res) => {
 
     try {
       // Send Verification Email
-      const { error: mailError } = await resend.emails.send({
+      await resend.emails.send({
         from: process.env.SENDER_EMAIL || "onboarding@resend.dev",
         to: email,
         subject: "QuickBlog Email Verification",
@@ -71,10 +71,6 @@ export const registerUser = async (req, res) => {
   </div>
 </div>`,
       });
-
-      if (mailError) {
-        throw new Error(mailError.message);
-      }
     } catch (mailError) {
       await User.findByIdAndDelete(user._id);
       throw mailError;
@@ -255,7 +251,7 @@ export const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    const { error: mailError } = await resend.emails.send({
+    await resend.emails.send({
       from: process.env.SENDER_EMAIL || "onboarding@resend.dev",
       to: email,
       subject: "QuickBlog Password Reset",
@@ -285,10 +281,6 @@ export const forgotPassword = async (req, res) => {
   </div>
 </div>`,
     });
-
-    if (mailError) {
-      throw new Error(mailError.message);
-    }
 
     return res.status(200).json({
       success: true,
