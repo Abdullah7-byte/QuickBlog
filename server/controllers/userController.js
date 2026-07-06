@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import generateToken from "../utils/generateToken.js";
-import transporter from "../config/nodemailer.js";
+import resend from "../config/resend.js";
 import generateOtp from "../utils/generateOtp.js";
 
 // Register User
@@ -44,17 +44,32 @@ export const registerUser = async (req, res) => {
 
     try {
       // Send Verification Email
-      await transporter.sendMail({
-        from: process.env.SENDER_EMAIL || process.env.SMTP_USER,
+      await resend.emails.send({
+        from: process.env.SENDER_EMAIL || "onboarding@resend.dev",
         to: email,
         subject: "QuickBlog Email Verification",
-        text: `Welcome to QuickBlog!
-
-Your OTP for email verification is: ${otp}
-
-This OTP is valid for 15 minutes.
-
-If you didn't create this account, please ignore this email.`,
+        html: `<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff; color: #333333;">
+  <div style="text-align: center; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #f0f0f0;">
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700; color: #4F46E5;">
+      <span style="color: #4F46E5;">Quick</span>Blog
+    </h1>
+  </div>
+  <h2 style="font-size: 20px; font-weight: 600; color: #111827; margin-top: 0;">Verify Your Email Address</h2>
+  <p style="font-size: 15px; line-height: 1.6; color: #4b5563; margin-bottom: 24px;">
+    Thank you for creating an account with QuickBlog. Please use the following One-Time Password (OTP) to verify your email address and complete your registration.
+  </p>
+  <div style="text-align: center; margin: 32px 0;">
+    <div style="display: inline-block; padding: 12px 32px; font-family: monospace; font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #4F46E5; background-color: #EEF2F6; border-radius: 8px; border: 1px solid #E2E8F0;">
+      ${otp}
+    </div>
+  </div>
+  <p style="font-size: 14px; line-height: 1.5; color: #6b7280;">
+    This code is valid for <strong>15 minutes</strong>. If you did not request this verification, you can safely ignore this email.
+  </p>
+  <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #f0f0f0; text-align: center; font-size: 12px; color: #9ca3af;">
+    &copy; ${new Date().getFullYear()} QuickBlog Team. All rights reserved.
+  </div>
+</div>`,
       });
     } catch (mailError) {
       await User.findByIdAndDelete(user._id);
@@ -236,13 +251,35 @@ export const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    await transporter.sendMail({
-      from: process.env.SENDER_EMAIL || process.env.SMTP_USER,
+    await resend.emails.send({
+      from: process.env.SENDER_EMAIL || "onboarding@resend.dev",
       to: email,
       subject: "QuickBlog Password Reset",
-      text: `Your password reset OTP is: ${otp}
-
-This OTP is valid for 15 minutes.`,
+      html: `<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff; color: #333333;">
+  <div style="text-align: center; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #f0f0f0;">
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700; color: #4F46E5;">
+      <span style="color: #4F46E5;">Quick</span>Blog
+    </h1>
+  </div>
+  <h2 style="font-size: 20px; font-weight: 600; color: #111827; margin-top: 0;">Reset Your Password</h2>
+  <p style="font-size: 15px; line-height: 1.6; color: #4b5563; margin-bottom: 24px;">
+    We received a request to reset the password for your QuickBlog account. Please use the following One-Time Password (OTP) to proceed with resetting your password.
+  </p>
+  <div style="text-align: center; margin: 32px 0;">
+    <div style="display: inline-block; padding: 12px 32px; font-family: monospace; font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #4F46E5; background-color: #EEF2F6; border-radius: 8px; border: 1px solid #E2E8F0;">
+      ${otp}
+    </div>
+  </div>
+  <p style="font-size: 14px; line-height: 1.5; color: #6b7280; margin-bottom: 8px;">
+    This code is valid for <strong>15 minutes</strong>.
+  </p>
+  <p style="font-size: 13px; line-height: 1.5; color: #ef4444; font-weight: 500;">
+    Warning: If you did not request a password reset, please secure your account immediately or ignore this email.
+  </p>
+  <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #f0f0f0; text-align: center; font-size: 12px; color: #9ca3af;">
+    &copy; ${new Date().getFullYear()} QuickBlog Team. All rights reserved.
+  </div>
+</div>`,
     });
 
     return res.status(200).json({
