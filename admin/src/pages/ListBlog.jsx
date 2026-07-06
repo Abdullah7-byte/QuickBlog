@@ -27,10 +27,13 @@ const ListBlog = () => {
       if (response.data.success) {
         toast.success("Blog deleted successfully");
         fetchBlogs();
+      } else {
+        toast.error(response.data.message || "Failed to delete blog");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete blog");
+      const errorMsg = error.response?.data?.message || "Failed to delete blog";
+      toast.error(errorMsg);
     }
   };
 
@@ -46,10 +49,13 @@ const ListBlog = () => {
       if (response.data.success) {
         toast.success(`Blog ${!blog.isPublished ? "Published" : "Unpublished"} Successfully`);
         fetchBlogs();
+      } else {
+        toast.error(response.data.message || "Failed to update blog");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to update blog");
+      const errorMsg = error.response?.data?.message || "Failed to update blog";
+      toast.error(errorMsg);
     }
   };
 

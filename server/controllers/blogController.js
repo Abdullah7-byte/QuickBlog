@@ -4,8 +4,6 @@ import imagekit from "../utils/imageKit.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import jwt from "jsonwebtoken";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key");
-
 const verifyAdminToken = (req) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -236,6 +234,7 @@ export const generateContent = async (req, res) => {
       });
     }
 
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({
       model: process.env.GEMINI_MODEL || "gemini-1.5-flash",
     });

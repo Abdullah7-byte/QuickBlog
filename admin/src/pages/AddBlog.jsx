@@ -126,10 +126,14 @@ const AddBlog = () => {
 
       if (response.data.success) {
         setDescription(response.data.content);
+        toast.success("Content generated successfully!");
+      } else {
+        toast.error(response.data.message || "Failed to generate content.");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to generate content.");
+      const errorMsg = error.response?.data?.message || "Failed to generate content.";
+      toast.error(errorMsg);
     } finally {
       setGenerating(false);
     }

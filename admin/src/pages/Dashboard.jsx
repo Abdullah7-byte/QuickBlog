@@ -38,10 +38,13 @@ const Dashboard = () => {
       if (response.data.success) {
         toast.success(`Blog ${!blog.isPublished ? "Published" : "Unpublished"} Successfully`);
         fetchDashboardData();
+      } else {
+        toast.error(response.data.message || "Failed to update blog status");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to update blog status");
+      const errorMsg = error.response?.data?.message || "Failed to update blog status";
+      toast.error(errorMsg);
     }
   };
 

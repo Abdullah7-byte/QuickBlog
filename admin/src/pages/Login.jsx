@@ -20,10 +20,13 @@ const Login = () => {
       if (response.data.success) {
         localStorage.setItem("token", response.data.token);
         navigate("/admin/dashboard");
+      } else {
+        toast.error(response.data.message || "Invalid Credentials");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Invalid Credentials");
+      const errorMsg = error.response?.data?.message || "Invalid Credentials";
+      toast.error(errorMsg);
     }
   };
 
