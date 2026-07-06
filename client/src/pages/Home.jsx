@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Footer from "../components/Footer";
+import api from "../api/axios";
 
 const Home = () => {
   const [blogs, setBlogs] = useState([]);
@@ -10,10 +10,7 @@ const Home = () => {
 
   const fetchBlogs = async () => {
     try {
-      const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      const response = await axios.get(
-        `${apiBase}/api/blog/all`
-      );
+      const response = await api.get("/blog/all");
 
       if (response.data.success) {
         setBlogs(response.data.blogs);
