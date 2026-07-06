@@ -2,12 +2,34 @@ import Blog from "../models/Blog.js";
 import Comment from "../models/Comment.js";
 import imagekit from "../utils/imageKit.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import jwt from "jsonwebtoken";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy_key");
+
+const verifyAdminToken = (req) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return false;
+  }
+  const [, token] = authHeader.split(" ");
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.role === "admin" && decoded.email === process.env.ADMIN_EMAIL;
+  } catch (err) {
+    return false;
+  }
+};
 
 export const addBlog = async (req, res) => {
   try {
     const { title, subTitle, description, category, isPublished } = req.body;
+
+    if (!imagekit) {
+      return res.status(500).json({
+        success: false,
+        message: "Image upload service is not configured on the server.",
+      });
+    }
 
     // Upload image to ImageKit
     const file = req.file;
@@ -50,11 +72,27 @@ export const getBlogById = async (req, res) => {
 
     const blog = await Blog.findById(id);
 
-    if (!blog || (!blog.isPublished && admin !== "true")) {
+    if (!blog) {
       return res.status(404).json({
         success: false,
         message: "Blog not found",
       });
+    }
+
+    if (!blog.isPublished && admin !== "true") {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found",
+      });
+    }
+
+    if (admin === "true") {
+      if (!verifyAdminToken(req)) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized. Admin credentials required.",
+        });
+      }
     }
 
     res.json({
@@ -73,6 +111,16 @@ export const getBlogById = async (req, res) => {
 export const getAllBlogs = async (req, res) => {
   try {
     const { admin } = req.query;
+
+    if (admin === "true") {
+      if (!verifyAdminToken(req)) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized. Admin credentials required.",
+        });
+      }
+    }
+
     const filter = admin === "true" ? {} : { isPublished: true };
     const blogs = await Blog.find(filter);
 
@@ -127,6 +175,13 @@ export const updateBlog = async (req, res) => {
     let imageUrl = existingBlog.image;
 
     if (req.file) {
+      if (!imagekit) {
+        return res.status(500).json({
+          success: false,
+          message: "Image upload service is not configured on the server.",
+        });
+      }
+
       const uploadedImage = await imagekit.upload({
         file: req.file.buffer,
         fileName: req.file.originalname,
@@ -167,11 +222,25 @@ export const generateContent = async (req, res) => {
   try {
     const { title, subTitle } = req.body;
 
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        message: "Gemini API key is not configured on the server.",
+      });
+    }
+
+    if (!title || !subTitle) {
+      return res.status(400).json({
+        success: false,
+        message: "Title and subtitle are required.",
+      });
+    }
+
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: process.env.GEMINI_MODEL || "gemini-1.5-flash",
     });
 
-const prompt = `
+    const prompt = `
 You are a senior content writer for Forbes and ESPN.
 
 Write a high-quality, SEO-friendly blog article.

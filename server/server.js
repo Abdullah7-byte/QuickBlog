@@ -2,14 +2,17 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
+import validateEnv from "./utils/validateEnv.js";
+
+dotenv.config();
+validateEnv();
+
 import connectDB from "./config/db.js";
 
 import adminRouter from "./routes/adminRoute.js";
 import blogRouter from "./routes/blogRoute.js";
 import commentRouter from "./routes/commentRoute.js";
 import userRouter from "./routes/userRoute.js";
-
-dotenv.config();
 
 const app = express();
 

@@ -1,5 +1,6 @@
 import express from "express";
 import auth from "../middleware/auth.js";
+import adminAuth from "../middleware/adminAuth.js";
 import {
   addComment,
   getComments,
@@ -11,9 +12,9 @@ import {
 const commentRouter = express.Router();
 
 // Admin Routes
-commentRouter.get("/all", getAllComments);
-commentRouter.put("/approve/:id", approveComment);
-commentRouter.delete("/:id", deleteComment);
+commentRouter.get("/all", adminAuth, getAllComments);
+commentRouter.put("/approve/:id", adminAuth, approveComment);
+commentRouter.delete("/:id", adminAuth, deleteComment);
 
 // Client Routes
 commentRouter.post("/add", auth, addComment);
