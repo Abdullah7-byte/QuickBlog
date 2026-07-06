@@ -45,7 +45,7 @@ You can use this account to:
 - Post comments
 - Explore authenticated user features
 
-> **Note:** This project currently uses Resend's sandbox environment for email verification on the live demo. If you don't receive an OTP while registering or resetting a password, please use the demo credentials above to evaluate the application.
+> **Note:** This is a pre-configured demo account for portfolio evaluation. New account registration and password recovery on the live deployment use Resend's sandbox environment and may be unavailable for arbitrary email addresses.
 
 ### ⚙️ Backend API
 🔗 https://quickblog-glbs.onrender.com
