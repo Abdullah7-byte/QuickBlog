@@ -236,7 +236,7 @@ export const generateContent = async (req, res) => {
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({
-      model: process.env.GEMINI_MODEL || "gemini-3.5-flash",
+      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
     });
 
     const prompt = `
@@ -261,7 +261,7 @@ Requirements:
 - Include a comparison table if the topic allows.
 - Include one "Key Takeaways" section using bullet points.
 - Include real-world facts and statistics whenever possible.
-- Write approximately 1000–1200 words.
+- Write approximately 500–700 words.
 - Make the article SEO-friendly.
 - Write like an experienced human journalist, not like an AI assistant.
 - Vary sentence length and avoid repetitive phrasing.

@@ -132,7 +132,16 @@ const AddBlog = () => {
       }
     } catch (error) {
       console.error(error);
-      const errorMsg = error.response?.data?.message || "Failed to generate content.";
+      let errorMsg = "Failed to generate content.";
+      if (error.response) {
+        if (error.response.status === 504) {
+          errorMsg = "Server took too long to respond (Gateway Timeout). Please try again.";
+        } else if (error.response.data && typeof error.response.data === "object" && error.response.data.message) {
+          errorMsg = error.response.data.message;
+        } else if (typeof error.response.data === "string" && error.response.data.includes("Gateway Timeout")) {
+          errorMsg = "Server took too long to respond (Gateway Timeout).";
+        }
+      }
       toast.error(errorMsg);
     } finally {
       setGenerating(false);
