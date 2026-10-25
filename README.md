@@ -27,7 +27,7 @@ Create, publish, manage, and explore blogs with AI-assisted content generation, 
 
 ```text
 Email: admin@gmail.com
-Password: 123456
+Password: admin@123
 ```
 
 ## 👤 Reader Demo Credentials
